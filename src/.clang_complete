@@ -1,0 +1,5 @@
+--std=c++11
+-I./src
+-I../lib/PEGTL
+-I../lib
+-g3

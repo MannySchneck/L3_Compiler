@@ -4,7 +4,7 @@
 
 using namespace L3;
 
-std::string slurp_file(std::string filename){
+std::string L3::slurp_file(std::string filename){
         std::stringstream ss;
 
         std::ifstream f{filename};

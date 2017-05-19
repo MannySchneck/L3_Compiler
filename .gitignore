@@ -4,3 +4,6 @@ bin
 /L3c
 tests
 obj
+.d
+/src/catch.hpp
+/src/catch_main.cpp

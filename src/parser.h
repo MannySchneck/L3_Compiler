@@ -250,7 +250,8 @@ namespace L3{
      {};
 
      struct call_start_token :
-          pegtl_string_t("call")
+          pegtl::seq<pegtl_string_t("call"),
+                     pegtl::space>
      {};
 
      struct call :

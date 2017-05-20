@@ -139,7 +139,23 @@ TEST_CASE("Loads, stores, call results, oh my..."){
      REQUIRE(v.result.str() == text);
 }
 
+TEST_CASE("test 11"){
+     std::string ptest11 = ptestdir + "ptest11.L3";
+     Program p = parse_file(ptest11);
+     std::string text = slurp_file(ptest11);
+     Dump v;
+     p.accept(v);
+     REQUIRE(v.result.str() == text);
+}
 
 
+TEST_CASE("test 12"){
+     std::string ptest12 = ptestdir + "ptest12.L3";
+     Program p = parse_file(ptest12);
+     std::string text = slurp_file(ptest12);
+     Dump v;
+     p.accept(v);
+     REQUIRE(v.result.str() == text);
+}
 
 #endif // UNIT_TEST

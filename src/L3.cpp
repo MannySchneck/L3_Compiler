@@ -22,7 +22,9 @@ void Dump::visit(Function* item){
         result << " ";
         item->name.accept(*this);
         result << "(";
-        for(auto it =  item->params.begin(); it != item->params.end(); it++){
+        for(auto it =  item->params.begin();
+            it != item->params.end();
+            it++){
                 if(it != item->params.begin()){
                         result << ", ";
                 }
@@ -30,7 +32,9 @@ void Dump::visit(Function* item){
         }
         result << ")";
         result << "{\n  ";
-        for(auto it = item->instructions.begin(); it != item->instructions.end(); it++){
+        for(auto it = item->instructions.begin();
+            it != item->instructions.end();
+            it++){
                 (*it)->accept(*this);
                 if(it != item->instructions.end() - 1){
                         result << "\n  ";
@@ -110,7 +114,7 @@ void Dump::visit(Int_Literal* item){
 void Dump::visit(Runtime_Fun* item){}
 
 
-void Program     ::accept(AST_Item_Visitor &v) { v.visit(this); }
+void Program     ::accept(AST_Item_Visitor &v) {v.visit(this); }
 void Function    ::accept(AST_Item_Visitor &v) { v.visit(this); }
 void Assignment  ::accept(AST_Item_Visitor &v) { v.visit(this); }
 void Binop       ::accept(AST_Item_Visitor &v) { v.visit(this); }
@@ -181,7 +185,8 @@ ast_ptr Assignment::get_lhs(){
      return operands[0];
 }
 
-std::vector<ast_ptr> vector_concat(std::vector<ast_ptr> a, std::vector<ast_ptr> b){
+std::vector<ast_ptr> vector_concat(std::vector<ast_ptr> a,
+                                   std::vector<ast_ptr> b){
      a.reserve(a.size() + b.size());
      a.insert(a.end(), b.begin(), b.end());
      return a;

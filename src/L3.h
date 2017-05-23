@@ -93,7 +93,7 @@ namespace L3{
   An instruction is any internal node in the program tree.
 */
      struct Instruction :
-          public AST_Item{
+          public virtual AST_Item{
 
           Instruction();
           Instruction(std::vector<L3_ptr<AST_Item>> operands);
@@ -227,8 +227,12 @@ namespace L3{
 ///////////////////////////////////////////////////////////////////////////////
 //                                   Atoms                                    //
 ///////////////////////////////////////////////////////////////////////////////
+     struct Atom :
+          public virtual AST_Item{
+     };
+
      struct Var :
-          public AST_Item{
+          public Atom{
 
           explicit Var(std::string name);
 
@@ -237,6 +241,7 @@ namespace L3{
      };
 
      struct Label :
+          public Atom,
           public Instruction{
 
           explicit Label(std::string name);
@@ -246,7 +251,7 @@ namespace L3{
      };
 
      struct Int_Literal :
-          public AST_Item{
+          public Atom{
 
           explicit Int_Literal(int64_t val);
 
@@ -255,7 +260,7 @@ namespace L3{
      };
 
      struct Runtime_Fun:
-          public AST_Item{
+          public Atom{
 
           enum Fun{
                print,

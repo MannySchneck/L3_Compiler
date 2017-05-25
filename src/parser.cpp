@@ -158,4 +158,14 @@ TEST_CASE("test 12"){
      REQUIRE(v.result.str() == text);
 }
 
+TEST_CASE("test 13"){
+     std::string ptest13 = ptestdir + "ptest13.L3";
+     Program p = parse_file(ptest13);
+     std::string text = slurp_file(ptest13 + ".ex");
+     Dump v;
+     p.accept(v);
+     REQUIRE(v.result.str() == text);
+}
+
+
 #endif // UNIT_TEST

@@ -1,5 +1,4 @@
 #pragma once
-
 #include <pegtl.hh>
 #include <pegtl/trace.hh>
 #include <pegtl/analyze.hh>
@@ -161,12 +160,11 @@ namespace L3{
           mult_op,
           left_shift_op,
           right_shift_op,
-          //
-          le_op,
           leq_op,
-          eq_op,
+          le_op,
+          geq_op,
           ge_op,
-          geq_op
+          eq_op
           >
      {};
 
@@ -284,6 +282,7 @@ namespace L3{
           load,
           pegtl::seq<
                s,
+               seps,
                pegtl::opt<binop_tail>
                >
           >
@@ -612,7 +611,17 @@ namespace L3{
 
                auto rhs = the_stack.downcast_pop<AST_Item>();
                auto lhs = the_stack.downcast_pop<AST_Item>();
-               the_stack.push(L3_ptr<AST_Item>{new Binop{op_stack.back(),
+               Binop::Op op = op_stack.back();
+
+               if(op == Binop::Op::ge){
+                    op = Binop::Op::le;
+                    std::swap(lhs, rhs);
+               }
+               if(op == Binop::Op::geq){
+                    op = Binop::Op::leq;
+                    std::swap(lhs, rhs);
+               }
+               the_stack.push(L3_ptr<AST_Item>{new Binop{op,
                                    lhs,
                                    rhs}});
 

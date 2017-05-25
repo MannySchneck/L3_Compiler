@@ -308,4 +308,9 @@ namespace L3{
           public AST_Item{
           void accept(AST_Item_Visitor &v) override;
      };
+
+     template <typename T, typename... Args>
+     ast_ptr make_AST(Args&&... args){
+          return ast_ptr{new T{std::forward<Args>(args)...}};
+     }
 }

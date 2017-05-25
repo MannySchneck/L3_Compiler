@@ -3,93 +3,117 @@
 #include <L3.h>
 
 namespace L3{
-    namespace Tile{
+namespace Tile{
 
-        struct Tile{
-            const static int64_t cost = 1;
-            std::vector<Tile> children;
-        };
+struct Tile{
+     const static int64_t cost = 1;
+     std::vector<Tile> children;
+     virtual std::string to_L2() = 0;
+};
 
 // Atomic tiles
-        // rhs <- lhs
-        struct Atom_Assignment:
-            public Tile{
-            const static int size = 3;
-            L3::Var lhs;
-            L3_ptr<L3::AST_Item> rhs_atom; // Must be: Var | Label | Int Literal
+// rhs <- lhs
+struct Atom_Assignment:
+          public Tile{
 
-        };
+     Atom_Assignment(L3_ptr<L3::AST_Item> lhs,
+                     L3_ptr<L3::AST_Item> rhs_atom);
 
-        struct Load_Assignment:
-            public Tile{
-            const static int size = 4;
-            L3::Var lhs;
-            L3::Load load; // must be load!
-        };
+     const static int size = 3;
+     ast_ptr lhs;
+     L3_ptr<L3::AST_Item> rhs_atom; // Must be: Var | Label | Int Literal
 
-        struct Store_Assignment:
-            public Tile{
-            const static int size = 4;
-            L3::Var lhs;
-            L3::Load load; // must be load!
-        };
+     std::string to_L2() override;
 
-        struct Binop_Assignment
-            : public Tile {
-            L3::Binop::Op op;
-            const static int size = 5;
-            L3_ptr<L3::AST_Item> rhs;
-            L3_ptr<L3::AST_Item> lhs;
-        };
+};
 
-        struct Goto
-            : public Tile{
-            const static int size = 1;
-            L3_ptr<L3::Label> target;
-        };
+struct Load_Assignment:
+          public Tile{
 
-        struct Cjump
-            : public Tile{
-            const static int size = 4;
-            L3_ptr<Var> cmp_result;
-            L3_ptr<L3::Label> t_target;
-            L3_ptr<L3::Label> f_target;
-        };
+     Load_Assignment(L3_ptr<L3::AST_Item> lhs,
+                     L3_ptr<L3::AST_Item> rhs);
 
-        struct Call
-            : public Tile{
-            const static int size = 1; // depends on the size doesn't it?
-            L3_ptr<AST_Item> target;
-            std::vector<L3_ptr<L3::AST_Item>> args;
-        };
+     const static int size = 4;
 
-        struct Val_Return
-            : public Tile{
-            L3_ptr<AST_Item> result;
-        };
+     ast_ptr  lhs;
+     ast_ptr  rhs; // must be load!
 
-        struct Void_Return
-            : public Tile{
-        };
 
-// Atom tiles :
-        struct Var
-            : public Tile{
-        };
+     std::string to_L2() override;
+};
 
-        struct Label
-            : public Tile{
+struct Store_Assignment:
+          public Tile{
+     Store_Assignment(L3::ast_ptr lhs,
+                      L3::ast_ptr rhs);
+     const static int size = 4;
+     ast_ptr lhs; // must be load!
+     ast_ptr rhs;
 
-        };
 
-        struct Int_Literal
-            : public Tile{
+     std::string to_L2() override;
+};
 
-        };
+struct Binop_Assignment
+     : public Tile {
 
-        struct Runtime_Fun
-            : public Tile{
+     Binop_Assignment(L3::ast_ptr lhs, L3::ast_ptr rhs);
+     const static int size = 5;
 
-        };
-    }
+     L3_ptr<L3::AST_Item> rhs;
+     L3_ptr<L3::AST_Item> lhs;
+
+     std::string to_L2() override;
+};
+
+struct Goto
+     : public Tile{
+
+     Goto(ast_ptr target);
+
+     const static int size = 1;
+     L3_ptr<L3::AST_Item> target;
+
+     std::string to_L2() override;
+};
+
+struct Cjump
+     : public Tile{
+     Cjump(ast_ptr cmp_result, ast_ptr t_target, ast_ptr f_target);
+
+     const static int size = 4;
+
+     ast_ptr cmp_result;
+     ast_ptr t_target;
+     ast_ptr f_target;
+
+     std::string to_L2() override;
+};
+
+struct Val_Return
+     : public Tile{
+     Val_Return(ast_ptr result);
+     L3_ptr<AST_Item> result;
+     std::string to_L2() override;
+};
+
+struct Void_Return
+     : public Tile{
+     Void_Return();
+     std::string to_L2() override;
+};
+
+struct Call
+     : public Tile{
+     Call(ast_ptr target, std::vector<ast_ptr> args);
+
+     const static int size = 1; // depends on the size doesn't it?
+
+     L3_ptr<AST_Item> target;
+     std::vector<L3_ptr<L3::AST_Item>> args;
+
+     std::string to_L2() override;
+};
+
+}
 }

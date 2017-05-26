@@ -2,19 +2,31 @@
 
 #include <L3.h>
 
+#include <boost/optional/optional.hpp>
+
 namespace L3{
 namespace Tile{
 
+
 struct Tile{
      const static int64_t cost = 1;
+
+
+     using tile_ptr = std::shared_ptr<Tile>;
+
      std::vector<Tile> children;
      virtual std::string to_L2() = 0;
 };
+
+
+using tile_ptr = Tile::tile_ptr;
 
 // Atomic tiles
 // rhs <- lhs
 struct Atom_Assignment:
           public Tile{
+
+     static boost::optional<tile_ptr> match_me_bro(L3::ast_ptr a_thing);
 
      Atom_Assignment(L3_ptr<L3::AST_Item> lhs,
                      L3_ptr<L3::AST_Item> rhs_atom);
@@ -105,14 +117,35 @@ struct Void_Return
 
 struct Call
      : public Tile{
-     Call(ast_ptr target, std::vector<ast_ptr> args);
+     Call(ast_ptr target, std::vector<ast_ptr> args, L3::Label retlab);
 
      const static int size = 1; // depends on the size doesn't it?
 
      L3_ptr<AST_Item> target;
      std::vector<L3_ptr<L3::AST_Item>> args;
+     L3::Label retlab;
 
      std::string to_L2() override;
+};
+
+// Atom tiles :
+struct Var
+     : public Tile{
+};
+
+struct Label
+     : public Tile{
+
+};
+
+struct Int_Literal
+     : public Tile{
+
+};
+
+struct Runtime_Fun
+     : public Tile{
+
 };
 
 }

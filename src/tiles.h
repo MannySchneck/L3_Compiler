@@ -14,7 +14,7 @@ struct Tile{
 
      using tile_ptr = std::shared_ptr<Tile>;
 
-     std::vector<Tile> children;
+     std::vector<std::shared_ptr<Tile>> children;
      virtual std::string to_L2() = 0;
 };
 
@@ -25,8 +25,6 @@ using tile_ptr = Tile::tile_ptr;
 // rhs <- lhs
 struct Atom_Assignment:
           public Tile{
-
-     static boost::optional<tile_ptr> match_me_bro(L3::ast_ptr a_thing);
 
      Atom_Assignment(L3_ptr<L3::AST_Item> lhs,
                      L3_ptr<L3::AST_Item> rhs_atom);
@@ -77,6 +75,22 @@ struct Binop_Assignment
 
      std::string to_L2() override;
 };
+
+struct Call_Assignment
+     : public Tile {
+
+     Call_Assignment(L3::ast_ptr lhs,
+                     L3::ast_ptr rhs,
+                     std::function<std::string()> name_gen);
+
+     const static int size = 5;
+
+     L3_ptr<L3::AST_Item> rhs;
+     L3_ptr<L3::AST_Item> lhs;
+
+     std::string to_L2() override;
+};
+
 
 struct Goto
      : public Tile{
@@ -136,6 +150,11 @@ struct Var
 struct Label
      : public Tile{
 
+     Label(ast_ptr lab);
+
+     std::string to_L2() override;
+
+     ast_ptr lab;
 };
 
 struct Int_Literal
@@ -147,6 +166,10 @@ struct Runtime_Fun
      : public Tile{
 
 };
+
+
+
+tile_ptr match_me_bro(L3::ast_ptr item, std::function<std::string()> name_gen);
 
 }
 }

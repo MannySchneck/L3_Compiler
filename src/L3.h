@@ -5,6 +5,7 @@
 #include <vector>
 #include <utils.h>
 #include <sstream>
+#include <unordered_set>
 #include <boost/optional/optional.hpp>
 
 namespace L3{
@@ -281,6 +282,45 @@ namespace L3{
 ///////////////////////////////////////////////////////////////////////////////
 //                            Structural elements                            //
 ///////////////////////////////////////////////////////////////////////////////
+
+        template<typename T>
+        bool is_one_of(L3_ptr<AST_Item> item){
+                return dynamic_cast<T*>(item.get());
+        }
+
+        template <typename T, typename T2, typename... Args>
+        bool is_one_of(L3_ptr<AST_Item> item){
+                return dynamic_cast<T*>(item.get()) ||
+                        is_one_of<T2, Args...>(item);
+        }
+
+        inline
+        bool is_t(ast_ptr item){
+                return is_one_of<Var, Int_Literal>(item);
+        }
+
+        inline
+        bool is_s(ast_ptr item){
+                return is_one_of<Label>(item) || is_t(item);
+        }
+
+        inline
+        bool is_callable(ast_ptr item){
+                return is_one_of<Runtime_Fun, Var, Label>(item);
+        }
+
+        inline
+        bool is_store(ast_ptr item){
+                return is_one_of<Store>(item);
+        }
+
+        inline
+        bool is_load(ast_ptr item){
+                return is_one_of<Load>(item);
+        }
+
+
+
         struct Function :
                 public AST_Item{
 
@@ -290,9 +330,50 @@ namespace L3{
                 std::vector<Var> params;
                 std::vector<L3_ptr<Instruction>> instructions;
 
+
+
                 void accept(AST_Item_Visitor &v) override;
 
-                std::string enstringify_l2ishly;
+                std::string enstringify_l2ishly(std::function<std::string()> name_gen);
+
+
+                std::unordered_set<std::string> grabber_of_the_labels();
+                std::unordered_set<std::string> grabber_of_the_vars();
+
+                static  std::string find_prefix(std::unordered_set<std::string> scrambled_symbols);
+
+                template <typename Find_Type, typename Ignore_Type>
+                std::unordered_set<std::string> walk_for_names(ast_ptr item){
+
+                        if(is_one_of<Int_Literal, Runtime_Fun, Ignore_Type>(item)){
+                                return {};
+                        }
+
+                        std::unordered_set<std::string> names;
+
+                        auto name_atom_ptr = dynamic_cast<Find_Type*>(item.get());
+                        if(name_atom_ptr){
+                                if(name_atom_ptr->name != "print"
+                                   && name_atom_ptr->name != "allocate"
+                                   && name_atom_ptr->name != "array-error"){
+                                        names.insert(name_atom_ptr->name);
+                                        return names;
+                                } else{
+                                        return {};
+                                }
+                        }
+
+                        auto cur_i_ptr = dynamic_cast<Instruction*>(item.get());
+                        if(cur_i_ptr){
+                                for(auto i_ptr : cur_i_ptr->operands){
+                                        auto child_names = walk_for_names<Find_Type, Ignore_Type>(i_ptr);
+                                        names.insert(child_names.begin(), child_names.end());
+                                }
+                                return names;
+                        } else {
+                                throw std::logic_error("You've missed a case in walk_for_names");
+                        }
+                }
         };
 
         struct Program :

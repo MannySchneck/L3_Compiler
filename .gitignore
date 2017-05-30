@@ -7,3 +7,8 @@ obj
 .d
 /src/catch.hpp
 /src/catch_main.cpp
+/src/GTAGS
+/src/GSYMS
+/src/GRTAGS
+/src/GPATH
+/a.out

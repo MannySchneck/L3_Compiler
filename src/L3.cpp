@@ -407,12 +407,38 @@ std::string Function::find_prefix(std::unordered_set<std::string> scrambled_symb
 std::string Function::enstringify_l2ishly(std::function<std::string()> name_gen){
         Dump v;
 
+        static std::array<char*, 6> arg_reg_str = {"rdi",
+                                                   "rsi",
+                                                   "rdx",
+                                                   "rcx",
+                                                   "r8",
+                                                   "r9"};
+
+
+
         v.result << "(";
         name.accept(v);
         v.result << "\n";
         v.result << params.size() << " ";
         v.result << (params.size() > 6) ? params.size() - 6 : 0; // I love magic numbers. So. Much.
         v.result << "\n";
+
+        for(int i = 0; i < params.size(); i++){
+                if(i < 6){
+                v.result << "(";
+                params[i].accept(v);
+                v.result << " <- ";
+                v.result << arg_reg_str[i];
+                v.result << ")" << "\n";
+                } else {
+                        v.result << "(";
+                        params[i].accept(v);
+                        v.result << " <- ";
+                        v.result << "(stack-arg ";
+                        v.result << ((params.size() - i) * 8);
+                        v.result << "))\n";
+                }
+        }
 
         std::vector<Tile::tile_ptr> my_brand_new_tiles;
 
@@ -435,6 +461,44 @@ std::string Function::enstringify_l2ishly(std::function<std::string()> name_gen)
         v.result << ")";
 
         return v.result.str();
+}
+
+namespace L3{
+        void prefixify_labels(ast_ptr item,
+                              std::string fun_prefix,
+                              std::set<std::string> globally_scoped_names){
+
+                if(is_one_of<L3::Label>(item)){
+                        auto lab_ptr = dynamic_cast<L3::Label*>(item.get());
+
+                        if(globally_scoped_names.count(lab_ptr->name)){
+                                return;
+                        }
+
+                        auto super_fun_prefix = std::string(":");
+                        super_fun_prefix.append(fun_prefix);
+
+
+                        auto orig_label_name = lab_ptr->name.substr(1);
+
+                        lab_ptr->name = super_fun_prefix.append(orig_label_name);
+                }
+
+                else if(is_one_of<L3::Instruction>(item)){
+                        auto i_ptr = dynamic_cast<L3::Instruction*>(item.get());
+                        for(auto child : i_ptr->operands){
+                                prefixify_labels(child, fun_prefix, globally_scoped_names);
+                        }
+                }
+        }
+}
+void Function::scopify_labels(std::string fun_prefix, std::set<std::string> globally_scoped_names){
+        for(auto inst : instructions){
+                if(is_one_of<Call>(inst)){
+                        continue;
+                }
+                prefixify_labels(inst, fun_prefix, globally_scoped_names);
+        }
 }
 
 #ifdef UNIT_TEST

@@ -32,7 +32,8 @@ Program L3::parse_file (std::string fileName){
         std::vector<Runtime_Fun::Fun> fun_stack;
 
 
-        pegtl::file_parser(fileName).parse< L3::grammar, L3::action>(p,
+        pegtl::file_parser(fileName).parse< L3::grammar, L3::action
+                                            >(p,
                                                                      the_stack,
                                                                      op_stack,
                                                                      fun_stack);

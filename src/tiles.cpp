@@ -274,6 +274,7 @@ std::string Binop_Assignment::to_L2(){
 
         Dump v2;
         binop_ptr->get_lhs()->accept(v2);
+
         Dump v3;
         binop_ptr->get_rhs()->accept(v3);
 
@@ -287,12 +288,16 @@ std::string Binop_Assignment::to_L2(){
         case(L3::Binop::and_):
         case(L3::Binop::left_shift):
         case(L3::Binop::right_shift):
-                ss << "(";
-        ss << bas_lhs_var;
-        ss << " <- ";
-        ss << binop_lhs;
-        ss << ")\n";
 
+        if(bas_lhs_var != binop_rhs){
+                ss << "(";
+                ss << bas_lhs_var;
+                ss << " <- ";
+                ss << binop_lhs;
+                ss << ")\n";
+        } else {
+                binop_rhs = binop_lhs;
+        }
 
         ss << "(";
         ss << bas_lhs_var;
@@ -409,7 +414,7 @@ std::string Cjump::to_L2(){
         v.result << "(";
         v.result << "cjump";
         v.result << " ";
-        cmp_result->accept(v); v.result << " = "; v.result << "1";
+        v.result << "0" << " < "; cmp_result->accept(v);
         v.result << " ";
         t_target->accept(v);
         v.result << " ";
@@ -589,7 +594,7 @@ TEST_CASE("Call me baby"){
 //                                  Free Label                               //
 ///////////////////////////////////////////////////////////////////////////////
 
-Label::Label(ast_ptr lab) : 
+Label::Label(ast_ptr lab) :
         lab(lab)
 {
         assert(is_one_of<L3::Label>(lab));

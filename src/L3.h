@@ -7,6 +7,7 @@
 #include <sstream>
 #include <unordered_set>
 #include <boost/optional/optional.hpp>
+#include <set>
 
 namespace L3{
 
@@ -339,6 +340,8 @@ namespace L3{
 
                 std::unordered_set<std::string> grabber_of_the_labels();
                 std::unordered_set<std::string> grabber_of_the_vars();
+
+                void scopify_labels(std::string fun_prefix, std::set<std::string> gsns);
 
                 static  std::string find_prefix(std::unordered_set<std::string> scrambled_symbols);
 
